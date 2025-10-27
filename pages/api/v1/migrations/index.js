@@ -3,7 +3,7 @@ import { join } from "node:path";
 import database from "infra/database";
 
 export default async function migrations(request, response) {
-  const dbClient = await database.getNewClient();
+  const dbClient = await database.getNewClient(); // Testing staging environment
   const migrationsOptions = {
     direction: "up",
     dir: join("infra", "migrations"),
@@ -11,6 +11,7 @@ export default async function migrations(request, response) {
     verbose: true,
     migrationsTable: "pgmigrations",
   };
+
   if (request.method == "GET") {
     migrationsOptions.dryRun = true;
     const peddingMigrations = await migrationRunner(migrationsOptions);
