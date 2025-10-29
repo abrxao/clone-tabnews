@@ -17,27 +17,24 @@ function generateSpinner(iteration) {
 }
 
 function checkPostgres(currentCount = 0) {
-  exec(
-    "docker exec postgres-dev pg_isready --host localhost",
-    (error, stdout, stderr) => {
-      const nextCount = currentCount + 1;
-      const isReady = stdout.includes("accepting connections");
+  exec("docker exec postgres-dev pg_isready --host localhost", (_, stdout) => {
+    const nextCount = currentCount + 1;
+    const isReady = stdout.includes("accepting connections");
 
-      if (isReady) {
-        writeLine("");
-        writeLine("\n🟢 Postgres is ready and accepting connections!\n");
-        return;
-      }
+    if (isReady) {
+      writeLine("");
+      writeLine("\n🟢 Postgres is ready and accepting connections!\n");
+      return;
+    }
 
-      const spinner = generateSpinner(nextCount);
-      const message = `🟠 Waiting for Postgres to accept connections |${spinner}`;
-      writeLine(message);
+    const spinner = generateSpinner(nextCount);
+    const message = `🟠 Waiting for Postgres to accept connections |${spinner}`;
+    writeLine(message);
 
-      setTimeout(() => {
-        checkPostgres(nextCount);
-      }, 50);
-    },
-  );
+    setTimeout(() => {
+      checkPostgres(nextCount);
+    }, 50);
+  });
 }
 
 process.stdout.write("\n");
