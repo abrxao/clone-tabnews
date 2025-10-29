@@ -13,8 +13,8 @@ async function query(queryObject) {
     await client.end();
   }
 }
-
-export default { query, getNewClient };
+const database = { query, getNewClient };
+export default database;
 
 function getSSLValues() {
   if (process.env.POSTGRES_CA) {
