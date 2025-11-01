@@ -20,7 +20,8 @@
     "wait-for-postgres": "node infra/scripts/wait-for-postgres.js",
     "concurrently:tests": "concurrently -n next,jest --hide next -k -s command-jest \"next dev\" \"jest --runInBand\"",
     "prepare": "husky",
-    "commit": "cz"
+    "commit": "cz",
+    "check-secrets": "node scripts/check-secrets.js"
   },
   "author": "",
   "license": "MIT",

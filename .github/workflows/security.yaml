@@ -1,0 +1,22 @@
+name: Security
+
+on: pull_request
+
+jobs:
+  secrets:
+    name: Secrets Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # necessário para ter o histórico completo do git
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "lts/hydrogen"
+
+      - run: npm ci
+
+      - name: Check for secrets in PR
+        run: |
+          git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} | node scripts/check-secrets.js --files-from-stdin
