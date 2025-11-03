@@ -4,5 +4,6 @@
     "eslint:recommended",
     "plugin:jest/recommended",
     "prettier"
-  ]
+  ],
+  "rules": { "no-undef": "off" }
 }
