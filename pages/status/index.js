@@ -16,14 +16,13 @@ export default function Status() {
   );
 }
 function UpdatedAt() {
-  const { data, isLoading, error } = useSWR("/api/v1/status", fetchAPI, {
+  const { data, isLoading } = useSWR("/api/v1/status", fetchAPI, {
     refreshInterval: 2000,
   });
-
-  if (error) {
+  if (isLoading && !data) {
     return <></>;
   }
-  if (isLoading && !data) {
+  if (data.status_code && data.status_code != 200) {
     return <></>;
   }
   const { updated_at } = data;
@@ -37,16 +36,17 @@ function UpdatedAt() {
 }
 
 function DatabaseStatus() {
-  const { data, isLoading, error } = useSWR("/api/v1/status", fetchAPI, {
+  const { data, isLoading } = useSWR("/api/v1/status", fetchAPI, {
     refreshInterval: 2000,
   });
 
-  if (error) {
-    return <h2>Error to connected in Database</h2>;
-  }
   if (isLoading && !data) {
     return <h2>Loading...</h2>;
   }
+  if (data.status_code && data.status_code != 200) {
+    return <h2>Error connecting to the Database</h2>;
+  }
+
   const {
     dependencies: {
       database: { version, opened_connections, max_connections },
