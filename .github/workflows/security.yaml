@@ -19,4 +19,4 @@ jobs:
 
       - name: Check for secrets in PR
         run: |
-          git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} | node scripts/check-secrets.js --files-from-stdin
+          git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} | node infra/scripts/check-secrets.js --files-from-stdin

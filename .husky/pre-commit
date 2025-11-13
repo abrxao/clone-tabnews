@@ -1,1 +1,1 @@
-node scripts/check-secrets.js
+node infra/scripts/check-secrets.js
