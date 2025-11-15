@@ -33,7 +33,7 @@ describe("GET to /ap1/v1/users", () => {
         id: response2Body.id,
         username: "same_case",
         email: "same_case@gmail.com",
-        password: "notStrongValue",
+        password: response2Body.password,
         created_at: response2Body.created_at,
         updated_at: response2Body.updated_at,
       });
@@ -64,7 +64,7 @@ describe("GET to /ap1/v1/users", () => {
         id: response2Body.id,
         username: "Diff_Case",
         email: "diff_case@gmail.com",
-        password: "notStrongValue",
+        password: response2Body.password,
         created_at: response2Body.created_at,
         updated_at: response2Body.updated_at,
       });
