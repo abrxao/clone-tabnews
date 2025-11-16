@@ -86,7 +86,7 @@ describe("POST to /ap1/v1/users", () => {
       expect(responseBody).toEqual({
         name: "ValidationError",
         message: "This email is already been used",
-        action: "Use another email to create an account",
+        action: "Use another email to this operation",
         status_code: 400,
       });
     });
@@ -122,7 +122,7 @@ describe("POST to /ap1/v1/users", () => {
       expect(responseBody).toEqual({
         name: "ValidationError",
         message: "This username is already been used",
-        action: "Use another username to create an account",
+        action: "Use another username for this operation",
         status_code: 400,
       });
     });
