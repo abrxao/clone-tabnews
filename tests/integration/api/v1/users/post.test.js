@@ -1,5 +1,7 @@
 import { version as uuidVersion } from "uuid";
 import orchestrator from "tests/orchestrator";
+import user from "models/user";
+import password from "models/password";
 
 beforeAll(async () => {
   await orchestrator.waitForAllServices();
@@ -10,16 +12,17 @@ beforeAll(async () => {
 describe("POST to /ap1/v1/users", () => {
   describe("Anonymous user", () => {
     test("With unique and valid data", async () => {
+      const userObj = {
+        username: "abrxao",
+        email: "abrxao@gmail.com",
+        password: "notStrongValue",
+      };
       const response = await fetch("http://localhost:3000/api/v1/users", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          username: "abrxao",
-          email: "abrxao@gmail.com",
-          password: "notStrongValue",
-        }),
+        body: JSON.stringify(userObj),
       });
       expect(response.status).toBe(201);
 
@@ -27,9 +30,9 @@ describe("POST to /ap1/v1/users", () => {
 
       expect(responseBody).toEqual({
         id: responseBody.id,
-        username: "abrxao",
-        email: "abrxao@gmail.com",
-        password: "notStrongValue",
+        username: userObj.username,
+        email: userObj.email,
+        password: responseBody.password,
         created_at: responseBody.created_at,
         updated_at: responseBody.updated_at,
       });
@@ -37,6 +40,19 @@ describe("POST to /ap1/v1/users", () => {
       expect(uuidVersion(responseBody.id)).toBe(4);
       expect(Date.parse(responseBody.created_at)).not.toBeNaN();
       expect(Date.parse(responseBody.updated_at)).not.toBeNaN();
+
+      const userInDatabase = await user.findOneByUsername(userObj.username);
+      const isCorrectPassword = await password.compare(
+        userObj.password,
+        userInDatabase.password,
+      );
+      expect(isCorrectPassword).toBe(true);
+
+      const isWrongPassword = await password.compare(
+        "#wrong_password#",
+        userInDatabase.password,
+      );
+      expect(isWrongPassword).toBe(false);
     });
 
     test("With duplicated email", async () => {
@@ -70,7 +86,7 @@ describe("POST to /ap1/v1/users", () => {
       expect(responseBody).toEqual({
         name: "ValidationError",
         message: "This email is already been used",
-        action: "Use another email to create an account",
+        action: "Use another email to this operation",
         status_code: 400,
       });
     });
@@ -106,7 +122,7 @@ describe("POST to /ap1/v1/users", () => {
       expect(responseBody).toEqual({
         name: "ValidationError",
         message: "This username is already been used",
-        action: "Use another username to create an account",
+        action: "Use another username for this operation",
         status_code: 400,
       });
     });
