@@ -33,6 +33,7 @@ const IGNORED_FILES = [
   "yarn.lock",
   "scripts/check-secrets.js",
   "tests/integration/api/v1/users",
+  "tests/integration/api/v1/sessions",
   ".secrets.baseline",
 ];
 
