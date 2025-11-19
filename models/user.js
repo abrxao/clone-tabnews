@@ -77,6 +77,62 @@ async function update(username, userInputValues) {
   }
 }
 
+async function findOneByUsername(username) {
+  const userFound = await runSelectQuery(username);
+  return userFound;
+
+  async function runSelectQuery(username) {
+    const results = await database.query({
+      text: `
+      SELECT
+        *
+      FROM
+        users
+      WHERE
+        LOWER(username) = LOWER($1)
+      LIMIT
+        1
+      ;`,
+      values: [username],
+    });
+    if (results.rowCount === 0) {
+      throw new NotFoundError({
+        message: "Requested username was not founded",
+        action: "Verify if requested username is right",
+      });
+    }
+    return results.rows[0];
+  }
+}
+
+async function findOneByEmail(email) {
+  const userFound = await runSelectQuery(email);
+  return userFound;
+
+  async function runSelectQuery(email) {
+    const results = await database.query({
+      text: `
+      SELECT
+        *
+      FROM
+        users
+      WHERE
+        LOWER(email) = LOWER($1)
+      LIMIT
+        1
+      ;`,
+      values: [email],
+    });
+    if (results.rowCount === 0) {
+      throw new NotFoundError({
+        message: "Requested email was not founded",
+        action: "Verify if requested email is right",
+      });
+    }
+    return results.rows[0];
+  }
+}
+
 async function validateUniqueUsername(username) {
   const results = await database.query({
     text: `
@@ -119,38 +175,10 @@ async function validateUniqueEmail(email) {
   }
 }
 
-async function findOneByUsername(username) {
-  const userFound = await runSelectQuery(username);
-  return userFound;
-
-  async function runSelectQuery(username) {
-    const results = await database.query({
-      text: `
-      SELECT
-        *
-      FROM
-        users
-      WHERE
-        LOWER(username) = LOWER($1)
-      LIMIT
-        1
-      ;`,
-      values: [username],
-    });
-    if (results.rowCount === 0) {
-      throw new NotFoundError({
-        message: "Requested username was not founded",
-        action: "Verify if requested username is right",
-      });
-    }
-    return results.rows[0];
-  }
-}
-
 async function hashPasswordInObject(userInputValues) {
   const hashPassword = await password.hash(userInputValues.password);
   userInputValues.password = hashPassword;
 }
-const user = { create, update, findOneByUsername };
+const user = { create, update, findOneByUsername, findOneByEmail };
 
 export default user;
