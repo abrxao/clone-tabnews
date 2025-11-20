@@ -19,6 +19,7 @@ function spawnCmd(cmd, args = [], opts = {}) {
 }
 
 async function cleanServices() {
+  // eslint-disable-next-line no-undef
   return new Promise((resolve) => {
     console.log(`Finishing Services...`);
     const stop = spawnCmd(npmBin(), ["run", "services:stop"]);
