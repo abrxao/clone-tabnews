@@ -77,6 +77,34 @@ async function update(username, userInputValues) {
   }
 }
 
+async function findOneByID(userID) {
+  const userFound = await runSelectQuery(userID);
+  return userFound;
+
+  async function runSelectQuery(userID) {
+    const results = await database.query({
+      text: `
+      SELECT
+        *
+      FROM
+        users
+      WHERE
+        id = $1
+      LIMIT
+        1
+      ;`,
+      values: [userID],
+    });
+    if (results.rowCount === 0) {
+      throw new NotFoundError({
+        message: "Requested user ID was not founded",
+        action: "Verify if requested user ID is right",
+      });
+    }
+    return results.rows[0];
+  }
+}
+
 async function findOneByUsername(username) {
   const userFound = await runSelectQuery(username);
   return userFound;
@@ -179,6 +207,6 @@ async function hashPasswordInObject(userInputValues) {
   const hashPassword = await password.hash(userInputValues.password);
   userInputValues.password = hashPassword;
 }
-const user = { create, update, findOneByUsername, findOneByEmail };
+const user = { create, update, findOneByID, findOneByUsername, findOneByEmail };
 
 export default user;
