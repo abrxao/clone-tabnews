@@ -22,6 +22,11 @@ describe("GET to /ap1/v1/user", () => {
       });
       expect(response.status).toBe(200);
 
+      const cacheControl = response.headers.get("Cache-Control");
+      expect(cacheControl).toBe(
+        "no-store, no-cache, max-age=0, must-revalidate",
+      );
+
       const responseBody = await response.json();
 
       expect(responseBody).toEqual({
