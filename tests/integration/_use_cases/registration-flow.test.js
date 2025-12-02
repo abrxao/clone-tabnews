@@ -1,3 +1,4 @@
+import activation from "models/activation";
 import orchestrator from "tests/orchestrator";
 
 beforeAll(async () => {
@@ -8,6 +9,7 @@ beforeAll(async () => {
 });
 
 describe("Use Case: Registration Flow (all successfull)", () => {
+  let createUserResponseBody;
   test("Create user account", async () => {
     const userObj = {
       username: "RegistrationFlow",
@@ -26,7 +28,7 @@ describe("Use Case: Registration Flow (all successfull)", () => {
     );
     expect(createUserResponse.status).toBe(201);
 
-    const createUserResponseBody = await createUserResponse.json();
+    createUserResponseBody = await createUserResponse.json();
     expect(createUserResponseBody).toEqual({
       id: createUserResponseBody.id,
       username: userObj.username,
@@ -38,7 +40,17 @@ describe("Use Case: Registration Flow (all successfull)", () => {
     });
   });
 
-  test("Receive activation email", async () => {});
+  test("Receive activation email", async () => {
+    const lastEmail = await orchestrator.getLastEmail();
+    const activationToken = await activation.findOneByUserID(
+      createUserResponseBody.id,
+    );
+    expect(lastEmail.sender).toBe("<contact@externbr.com>");
+    expect(lastEmail.recipients[0]).toBe("<registrationflow@gmail.com>");
+    expect(lastEmail.subject).toBe("Active your account on the ExternBR");
+    expect(lastEmail.text).toContain("RegistrationFlow");
+    expect(lastEmail.text).toContain(activationToken.id);
+  });
 
   test("Activation account", async () => {});
 
