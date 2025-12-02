@@ -114,7 +114,7 @@ describe("PATCH to /ap1/v1/users", () => {
         username: "unique_user2",
         email: responseBody.email,
         password: responseBody.password,
-        features: [],
+        features: ["read:activation_token"],
         created_at: responseBody.created_at,
         updated_at: responseBody.updated_at,
       });
@@ -150,7 +150,7 @@ describe("PATCH to /ap1/v1/users", () => {
         username: responseBody.username,
         email: "unique_email2@gmail.com",
         password: responseBody.password,
-        features: [],
+        features: ["read:activation_token"],
         created_at: responseBody.created_at,
         updated_at: responseBody.updated_at,
       });
@@ -186,7 +186,7 @@ describe("PATCH to /ap1/v1/users", () => {
         username: newUser.username,
         email: newUser.email,
         password: responseBody.password,
-        features: [],
+        features: ["read:activation_token"],
         created_at: responseBody.created_at,
         updated_at: responseBody.updated_at,
       });

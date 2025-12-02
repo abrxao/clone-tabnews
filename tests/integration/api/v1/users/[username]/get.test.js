@@ -24,7 +24,7 @@ describe("GET to /ap1/v1/users", () => {
         username: "same_case",
         email: newUser.email,
         password: responseBody.password,
-        features: [],
+        features: ["read:activation_token"],
         created_at: responseBody.created_at,
         updated_at: responseBody.updated_at,
       });
@@ -46,7 +46,7 @@ describe("GET to /ap1/v1/users", () => {
         username: "diff_case",
         email: newUser.email,
         password: response2Body.password,
-        features: [],
+        features: ["read:activation_token"],
         created_at: response2Body.created_at,
         updated_at: response2Body.updated_at,
       });
