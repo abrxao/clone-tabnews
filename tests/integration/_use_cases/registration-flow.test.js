@@ -10,6 +10,7 @@ beforeAll(async () => {
 
 describe("Use Case: Registration Flow (all successfull)", () => {
   let createUserResponseBody;
+  let emailActivationTokenID;
   test("Create user account", async () => {
     const userObj = {
       username: "RegistrationFlow",
@@ -42,7 +43,7 @@ describe("Use Case: Registration Flow (all successfull)", () => {
 
   test("Receive activation email", async () => {
     const lastEmail = await orchestrator.getLastEmail();
-    const emailActivationTokenID = orchestrator.extractUUID(lastEmail.text);
+    emailActivationTokenID = orchestrator.extractUUID(lastEmail.text);
     const activationToken = await activation.findOneValidByTokenID(
       emailActivationTokenID,
     );
@@ -57,7 +58,19 @@ describe("Use Case: Registration Flow (all successfull)", () => {
     expect(lastEmail.text).toContain(activationToken.id);
   });
 
-  test("Activation account", async () => {});
+  test("Activation account", async () => {
+    const activateResponse = await fetch(
+      `http://localhost:3000/api/v1/activations/${emailActivationTokenID}`,
+      { method: "PATCH" },
+    );
+    expect(activateResponse.status).toBe(200);
+    const activateResponseBody = await activateResponse.json();
+
+    expect(Date.parse(activateResponseBody.used_at)).not.toBeNaN();
+    const activatedUser =
+      await orchestrator.findOneByUsername("RegistrationFlow");
+    expect(activatedUser.features).toEqual(["create:session"]);
+  });
 
   test("Login", async () => {});
 

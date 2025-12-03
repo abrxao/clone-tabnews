@@ -82,6 +82,28 @@ async function update(username, userInputValues) {
   }
 }
 
+async function setFeatures(userID, features) {
+  const updatedUser = await runUpdateQuery(userID, features);
+  return updatedUser;
+
+  async function runUpdateQuery(userID, features) {
+    const results = await database.query({
+      text: `
+        UPDATE
+          users
+        SET
+          features = $2
+        WHERE
+          id = $1
+        RETURNING
+          * 
+        ;`,
+      values: [userID, features],
+    });
+    return results.rows[0];
+  }
+}
+
 async function findOneByID(userID) {
   const userFound = await runSelectQuery(userID);
   return userFound;
@@ -212,6 +234,13 @@ async function hashPasswordInObject(userInputValues) {
   const hashPassword = await password.hash(userInputValues.password);
   userInputValues.password = hashPassword;
 }
-const user = { create, update, findOneByID, findOneByUsername, findOneByEmail };
+const user = {
+  create,
+  update,
+  findOneByID,
+  findOneByUsername,
+  findOneByEmail,
+  setFeatures,
+};
 
 export default user;

@@ -2,6 +2,7 @@ import database from "infra/database";
 import email from "infra/email";
 import { NotFoundError } from "infra/errors";
 import webserver from "infra/webserver";
+import user from "./user";
 const EXPIRATION_IN_MS = 15 * 60 * 1000; // 15 minutes in ms
 
 async function sendEmailToUser(user, activationToken) {
@@ -39,11 +40,37 @@ async function create(userID) {
     return results.rows[0];
   }
 }
+async function markTokenAsUsed(tokenID) {
+  const usedToken = await runUpdateQuery(tokenID);
+  return usedToken;
+  async function runUpdateQuery(tokenID) {
+    const results = await database.query({
+      text: `
+        UPDATE
+          user_activation_tokens
+        SET
+          used_at = timezone('utc', now()),
+          updated_at = timezone('utc', now())
+        WHERE
+          id = $1
+        RETURNING
+          * 
+        ;`,
+      values: [tokenID],
+    });
+    return results.rows[0];
+  }
+}
 
-async function findOneValidByTokenID(token) {
-  const activationToken = await runSelectQuery(token);
+async function activateUserByUserID(userID) {
+  const activatedUser = await user.setFeatures(userID, ["create:session"]);
+  return activatedUser;
+}
+
+async function findOneValidByTokenID(tokenID) {
+  const activationToken = await runSelectQuery(tokenID);
   return activationToken;
-  async function runSelectQuery(token) {
+  async function runSelectQuery(tokenID) {
     const results = await database.query({
       text: `
       SELECT
@@ -57,7 +84,7 @@ async function findOneValidByTokenID(token) {
       LIMIT
         1
       ;`,
-      values: [token],
+      values: [tokenID],
     });
 
     if (results.rowCount === 0) {
@@ -71,5 +98,11 @@ async function findOneValidByTokenID(token) {
   }
 }
 
-const activation = { create, findOneValidByTokenID, sendEmailToUser };
+const activation = {
+  activateUserByUserID,
+  create,
+  findOneValidByTokenID,
+  markTokenAsUsed,
+  sendEmailToUser,
+};
 export default activation;

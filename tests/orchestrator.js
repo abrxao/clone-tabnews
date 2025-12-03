@@ -57,6 +57,10 @@ async function createUser(userObj) {
   });
 }
 
+async function findOneByUsername(username) {
+  return await user.findOneByUsername(username);
+}
+
 async function createSession(userID) {
   return await session.create(userID);
 }
@@ -94,6 +98,7 @@ const orchestrator = {
   createSession,
   deleteAllEmails,
   extractUUID,
+  findOneByUsername,
   getLastEmail,
   runPendingMigrations,
   waitForAllServices,
