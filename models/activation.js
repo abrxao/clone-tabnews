@@ -1,5 +1,6 @@
 import database from "infra/database";
 import email from "infra/email";
+import { NotFoundError } from "infra/errors";
 import webserver from "infra/webserver";
 const EXPIRATION_IN_MS = 15 * 60 * 1000; // 15 minutes in ms
 
@@ -39,10 +40,10 @@ async function create(userID) {
   }
 }
 
-async function findOneByUserID(userID) {
-  const activationToken = await runSelectQuery(userID);
+async function findOneValidByTokenID(token) {
+  const activationToken = await runSelectQuery(token);
   return activationToken;
-  async function runSelectQuery(userID) {
+  async function runSelectQuery(token) {
     const results = await database.query({
       text: `
       SELECT
@@ -50,15 +51,25 @@ async function findOneByUserID(userID) {
       FROM
         user_activation_tokens
       WHERE
-        user_id=$1
+        id=$1
+        AND expires_at > NOW()
+        AND used_at IS NULL
       LIMIT
         1
       ;`,
-      values: [userID],
+      values: [token],
     });
+
+    if (results.rowCount === 0) {
+      throw new NotFoundError({
+        message: "Activation token not exist or expired",
+        action: "Do a new register",
+      });
+    }
+
     return results.rows[0];
   }
 }
 
-const activation = { create, findOneByUserID, sendEmailToUser };
+const activation = { create, findOneValidByTokenID, sendEmailToUser };
 export default activation;

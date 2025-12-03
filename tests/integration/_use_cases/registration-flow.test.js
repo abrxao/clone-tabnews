@@ -42,9 +42,14 @@ describe("Use Case: Registration Flow (all successfull)", () => {
 
   test("Receive activation email", async () => {
     const lastEmail = await orchestrator.getLastEmail();
-    const activationToken = await activation.findOneByUserID(
-      createUserResponseBody.id,
+    const emailActivationTokenID = orchestrator.extractUUID(lastEmail.text);
+    const activationToken = await activation.findOneValidByTokenID(
+      emailActivationTokenID,
     );
+
+    expect(activationToken.user_id).toBe(createUserResponseBody.id);
+    expect(activationToken.used_at).toBe(null);
+
     expect(lastEmail.sender).toBe("<contact@externbr.com>");
     expect(lastEmail.recipients[0]).toBe("<registrationflow@gmail.com>");
     expect(lastEmail.subject).toBe("Active your account on the ExternBR");

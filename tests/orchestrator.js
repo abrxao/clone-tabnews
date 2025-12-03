@@ -67,6 +67,11 @@ async function deleteAllEmails() {
   });
 }
 
+function extractUUID(text) {
+  const match = text.match(/[0-9a-fA-F-]{36}/);
+  return match ? match[0] : null;
+}
+
 async function getLastEmail() {
   const response = await fetch(`${emailHttpUrl}/messages`);
   const emailListBody = await response.json();
@@ -88,6 +93,7 @@ const orchestrator = {
   createUser,
   createSession,
   deleteAllEmails,
+  extractUUID,
   getLastEmail,
   runPendingMigrations,
   waitForAllServices,
