@@ -95,7 +95,7 @@ describe("POST to /ap1/v1/sessions", () => {
         email: "correct_email@gmail.com",
         password: "correct_password",
       });
-      await orchestrator.activatedUser(newUser);
+      await orchestrator.activateUser(newUser);
 
       const response = await fetch("http://localhost:3000/api/v1/sessions", {
         method: "POST",

@@ -58,7 +58,7 @@ async function createUser(userObj) {
   });
 }
 
-async function activatedUser(userObj) {
+async function activateUser(userObj) {
   return await activation.activateUserByUserID(userObj.id);
 }
 
@@ -99,7 +99,7 @@ async function getLastEmail() {
 
 const orchestrator = {
   clearDatabase,
-  activatedUser,
+  activateUser,
   createUser,
   createSession,
   deleteAllEmails,
