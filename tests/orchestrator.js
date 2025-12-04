@@ -4,6 +4,7 @@ import migrator from "models/migrator";
 import user from "models/user";
 import { faker } from "@faker-js/faker";
 import session from "models/session";
+import activation from "models/activation";
 
 const emailHttpUrl = `http://${process.env.EMAIL_HTTP_HOST}:${process.env.EMAIL_HTTP_PORT}`;
 
@@ -57,6 +58,10 @@ async function createUser(userObj) {
   });
 }
 
+async function activatedUser(userObj) {
+  return await activation.activateUserByUserID(userObj.id);
+}
+
 async function findOneByUsername(username) {
   return await user.findOneByUsername(username);
 }
@@ -94,6 +99,7 @@ async function getLastEmail() {
 
 const orchestrator = {
   clearDatabase,
+  activatedUser,
   createUser,
   createSession,
   deleteAllEmails,
