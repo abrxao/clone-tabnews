@@ -6,10 +6,16 @@ import {
   ValidationError,
   NotFoundError,
   UnauthorizedError,
+  ForbiddenError,
 } from "./errors";
+import user from "models/user";
 
 function onErrorHandler(error, _, response) {
-  if (error instanceof ValidationError || error instanceof NotFoundError) {
+  if (
+    error instanceof ValidationError ||
+    error instanceof NotFoundError ||
+    error instanceof ForbiddenError
+  ) {
     return response.status(error.statusCode).json(error);
   }
 
@@ -49,8 +55,53 @@ async function clearSessionCookie(response) {
   });
   response.setHeader("Set-Cookie", setCookie);
 }
+
+async function injectAnonymousOrUser(request, response, next) {
+  if (request.cookies?.session_id) {
+    await injectAuthenticatedUser(request);
+    return next();
+  }
+  await injectAnonymousUser(request);
+  return next();
+}
+async function injectAuthenticatedUser(request) {
+  const sessionToken = await request.cookies.session_id;
+  const sessionObj = await session.findOneValidByToken(sessionToken);
+  const userObj = await user.findOneByID(sessionObj.user_id);
+
+  request.context = {
+    ...request.context,
+    user: userObj,
+  };
+}
+
+async function injectAnonymousUser(request) {
+  const anonymousUserObj = {
+    features: ["read:activation_token", "create:session", "create:user"],
+  };
+  request.context = {
+    ...request.context,
+    user: anonymousUserObj,
+  };
+}
+
+function canRequest(feature) {
+  return function canRequestMiddleware(request, response, next) {
+    const userTryingToRequest = request.context.user;
+    if (userTryingToRequest.features.includes(feature)) {
+      return next();
+    }
+    throw new ForbiddenError({
+      message: "You're not allowed to do this action",
+      action: `Verify if user have feature:${feature}`,
+    });
+  };
+}
+
 const controller = {
   clearSessionCookie,
+  canRequest,
+  injectAnonymousOrUser,
   setSessionCookie,
   errorHandlers: {
     onNoMatch: onNoMatchHandler,
