@@ -63,7 +63,10 @@ async function markTokenAsUsed(tokenID) {
 }
 
 async function activateUserByUserID(userID) {
-  const activatedUser = await user.setFeatures(userID, ["create:session"]);
+  const activatedUser = await user.setFeatures(userID, [
+    "create:session",
+    "read:session",
+  ]);
   return activatedUser;
 }
 
