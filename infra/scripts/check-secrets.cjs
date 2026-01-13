@@ -31,8 +31,9 @@ const PATTERNS = [
 const IGNORED_FILES = [
   "package-lock.json",
   "yarn.lock",
-  "scripts/check-secrets.js",
-  "tests/",
+  "scripts/check-secrets.cjs",
+  "tests/integration/api/v1/users",
+  "tests/integration/api/v1/sessions",
   ".secrets.baseline",
 ];
 
