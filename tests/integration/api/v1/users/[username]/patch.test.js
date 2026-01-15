@@ -67,6 +67,39 @@ describe("PATCH to /ap1/v1/users", () => {
       });
     });
 
+    test("Trying to change other user values", async () => {
+      const newUser = await orchestrator.createUser({
+        username: "defaultUser",
+      });
+      const activatedUser = await orchestrator.activateUser(newUser);
+      const sessionObj = await orchestrator.createSession(activatedUser.id);
+
+      await orchestrator.createUser({
+        username: "defaultUser1",
+      });
+      const response1 = await fetch(
+        "http://localhost:3000/api/v1/users/defaultUser1",
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Cookie: `session_id=${sessionObj.token}`,
+          },
+          body: JSON.stringify({
+            username: "user_test",
+          }),
+        },
+      );
+      expect(response1.status).toBe(403);
+      const response1Body = await response1.json();
+
+      expect(response1Body).toEqual({
+        name: "ForbiddenError",
+        message: "You are not allowed to update this ressource",
+        action: "Verify if you have permission to do this update",
+        status_code: 403,
+      });
+    });
     test("With duplicated username", async () => {
       const newUser = await orchestrator.createUser({
         username: "user2",
