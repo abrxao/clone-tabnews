@@ -70,7 +70,11 @@ describe("Use Case: Registration Flow (all successfull)", () => {
     expect(Date.parse(activateResponseBody.used_at)).not.toBeNaN();
     const activatedUser =
       await orchestrator.findOneByUsername("RegistrationFlow");
-    expect(activatedUser.features).toEqual(["create:session", "read:session"]);
+    expect(activatedUser.features).toEqual([
+      "create:session",
+      "read:session",
+      "update:user",
+    ]);
   });
 
   test("Login", async () => {

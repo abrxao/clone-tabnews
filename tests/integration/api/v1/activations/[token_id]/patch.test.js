@@ -141,6 +141,7 @@ describe("PATCH to /ap1/v1/activations", () => {
       expect(activatedUser.features).toEqual([
         "create:session",
         "read:session",
+        "update:user",
       ]);
     });
     test("With valid token but already activated user", async () => {
