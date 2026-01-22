@@ -100,6 +100,7 @@ describe("PATCH to /ap1/v1/users", () => {
         status_code: 403,
       });
     });
+
     test("With duplicated username", async () => {
       const newUser = await orchestrator.createUser({
         username: "user2",
@@ -296,6 +297,51 @@ describe("PATCH to /ap1/v1/users", () => {
         userInDatabase.password,
       );
       expect(isWrongPassword).toBe(false);
+    });
+  });
+
+  describe("Previliged user", () => {
+    test("Trying to change other user values", async () => {
+      const newPrivilegedUser = await orchestrator.createUser({
+        username: "newPrivilegedUser",
+      });
+      const activatedUser = await orchestrator.activateUser(newPrivilegedUser);
+      const sessionObj = await orchestrator.createSession(activatedUser.id);
+      await orchestrator.addFeatures(activatedUser.id, ["update:user:others"]);
+
+      const anyUserNotPrivileged = await orchestrator.createUser({
+        username: "anyUserNotPrivileged",
+      });
+      await orchestrator.activateUser(anyUserNotPrivileged);
+      const response = await fetch(
+        "http://localhost:3000/api/v1/users/anyUserNotPrivileged",
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Cookie: `session_id=${sessionObj.token}`,
+          },
+          body: JSON.stringify({
+            username: "user_test",
+          }),
+        },
+      );
+      const responseBody = await response.json();
+
+      expect(responseBody).toEqual({
+        id: responseBody.id,
+        username: "user_test",
+        email: responseBody.email,
+        password: responseBody.password,
+        features: ["create:session", "read:session", "update:user"],
+        created_at: responseBody.created_at,
+        updated_at: responseBody.updated_at,
+      });
+
+      expect(uuidVersion(responseBody.id)).toBe(4);
+      expect(Date.parse(responseBody.created_at)).not.toBeNaN();
+      expect(Date.parse(responseBody.updated_at)).not.toBeNaN();
+      expect(responseBody.created_at <= responseBody.updated_at).toBe(true);
     });
   });
 });
