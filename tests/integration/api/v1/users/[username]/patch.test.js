@@ -9,7 +9,7 @@ beforeAll(async () => {
   await orchestrator.runPendingMigrations();
 });
 
-describe("PATCH to /ap1/v1/users", () => {
+describe("PATCH to /ap1/v1/users/[username]", () => {
   describe("Anonymous user", () => {
     test("With unique username", async () => {
       await orchestrator.createUser({
@@ -95,7 +95,7 @@ describe("PATCH to /ap1/v1/users", () => {
 
       expect(response1Body).toEqual({
         name: "ForbiddenError",
-        message: "You are not allowed to update this ressource",
+        message: "You are not allowed to update this resource",
         action: "Verify if you have permission to do this update",
         status_code: 403,
       });
@@ -195,8 +195,6 @@ describe("PATCH to /ap1/v1/users", () => {
       expect(responseBody).toEqual({
         id: responseBody.id,
         username: "unique_user2",
-        email: responseBody.email,
-        password: responseBody.password,
         features: ["create:session", "read:session", "update:user"],
         created_at: responseBody.created_at,
         updated_at: responseBody.updated_at,
@@ -234,8 +232,6 @@ describe("PATCH to /ap1/v1/users", () => {
       expect(responseBody).toEqual({
         id: responseBody.id,
         username: responseBody.username,
-        email: "unique_email2@gmail.com",
-        password: responseBody.password,
         features: ["create:session", "read:session", "update:user"],
         created_at: responseBody.created_at,
         updated_at: responseBody.updated_at,
@@ -273,8 +269,6 @@ describe("PATCH to /ap1/v1/users", () => {
       expect(responseBody).toEqual({
         id: responseBody.id,
         username: newUser.username,
-        email: newUser.email,
-        password: responseBody.password,
         features: ["create:session", "read:session", "update:user"],
         created_at: responseBody.created_at,
         updated_at: responseBody.updated_at,
@@ -331,8 +325,7 @@ describe("PATCH to /ap1/v1/users", () => {
       expect(responseBody).toEqual({
         id: responseBody.id,
         username: "user_test",
-        email: responseBody.email,
-        password: responseBody.password,
+
         features: ["create:session", "read:session", "update:user"],
         created_at: responseBody.created_at,
         updated_at: responseBody.updated_at,

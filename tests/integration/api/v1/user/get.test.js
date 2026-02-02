@@ -34,7 +34,6 @@ describe("GET to /ap1/v1/user", () => {
         id: responseBody.id,
         username: newUser.username,
         email: newUser.email,
-        password: responseBody.password,
         features: ["create:session", "read:session", "update:user"],
         created_at: new Date(newUser.created_at).toISOString(),
         updated_at: new Date(activatedUser.updated_at).toISOString(),

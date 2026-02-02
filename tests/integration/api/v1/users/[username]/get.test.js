@@ -22,8 +22,6 @@ describe("GET to /ap1/v1/users", () => {
       expect(responseBody).toEqual({
         id: responseBody.id,
         username: "same_case",
-        email: newUser.email,
-        password: responseBody.password,
         features: ["read:activation_token"],
         created_at: responseBody.created_at,
         updated_at: responseBody.updated_at,
@@ -44,8 +42,6 @@ describe("GET to /ap1/v1/users", () => {
       expect(response2Body).toEqual({
         id: response2Body.id,
         username: "diff_case",
-        email: newUser.email,
-        password: response2Body.password,
         features: ["read:activation_token"],
         created_at: response2Body.created_at,
         updated_at: response2Body.updated_at,
