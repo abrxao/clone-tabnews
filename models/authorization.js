@@ -1,4 +1,33 @@
+import { InternalServerError } from "infra/errors";
+
+const availableFeatures = [
+  //USER
+  "create:user",
+  "update:user",
+  "update:user:others",
+  "read:user",
+  "read:user:self",
+
+  //SESSION
+  "create:session",
+  "read:session",
+
+  //ACTIVATION TOKEN
+  "read:activation_token",
+
+  //MIGRATION
+  "read:migration",
+  "create:migration",
+
+  //STATUS
+  "read:status:all",
+  "read:status",
+];
+
 function can(user, feature, resource) {
+  validateUser(user);
+  validateFeature(feature);
+
   let authorizaded = false;
 
   if (user.features.includes(feature)) {
@@ -15,6 +44,9 @@ function can(user, feature, resource) {
 }
 
 function filterOutput(user, feature, resource) {
+  validateUser(user);
+  validateFeature(feature);
+  validateResource(resource);
   if (feature == "read:user") {
     return {
       id: resource.id,
@@ -83,6 +115,29 @@ function filterOutput(user, feature, resource) {
         resource.dependencies.database.version;
     }
     return statusOutput;
+  }
+}
+function validateFeature(feature) {
+  if (!feature || !availableFeatures.includes(feature)) {
+    throw new InternalServerError({
+      cause: "A known `feature` is needed in `authorization` model.",
+    });
+  }
+}
+
+function validateUser(user) {
+  if (!user || !user.features) {
+    throw new InternalServerError({
+      cause: "A known `user` is needed in `authorization` model.",
+    });
+  }
+}
+
+function validateResource(resource) {
+  if (!resource) {
+    throw new InternalServerError({
+      cause: "A known `resource` is needed in `authorization` model.",
+    });
   }
 }
 
