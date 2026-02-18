@@ -16,6 +16,7 @@
     "services:wait:database": "node infra/scripts/wait-for-postgres.cjs",
     "migrations:create": "node-pg-migrate -m infra/migrations create",
     "migrations:up": "node-pg-migrate -m infra/migrations --envPath .env.development up",
+    "migrations:up:dry": "node-pg-migrate -m infra/migrations --envPath .env.development --dry-run up",
     "build": "next build",
     "start": "next start",
     "lint:prettier:check": "prettier --check .",
