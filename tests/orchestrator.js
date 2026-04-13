@@ -4,6 +4,7 @@ import migrator from "models/migrator";
 import user from "models/user";
 import { faker } from "@faker-js/faker";
 import session from "models/session";
+import activation from "models/activation";
 
 const emailHttpUrl = `http://${process.env.EMAIL_HTTP_HOST}:${process.env.EMAIL_HTTP_PORT}`;
 
@@ -51,14 +52,26 @@ async function runPendingMigrations() {
 async function createUser(userObj) {
   return await user.create({
     username:
-      userObj.username || faker.internet.username().replace(/[_.-]/g, ""),
-    email: userObj.email || faker.internet.email(),
-    password: userObj.password || "validPassword",
+      userObj?.username || faker.internet.username().replace(/[_.-]/g, ""),
+    email: userObj?.email || faker.internet.email(),
+    password: userObj?.password || "validPassword",
   });
+}
+
+async function activateUser(userObj) {
+  return await activation.activateUserByUserID(userObj.id);
+}
+
+async function findOneByUsername(username) {
+  return await user.findOneByUsername(username);
 }
 
 async function createSession(userID) {
   return await session.create(userID);
+}
+
+async function addFeatures(userID, features) {
+  return await user.addFeatures(userID, features);
 }
 
 async function deleteAllEmails() {
@@ -67,10 +80,19 @@ async function deleteAllEmails() {
   });
 }
 
+function extractUUID(text) {
+  const match = text.match(/[0-9a-fA-F-]{36}/);
+  return match ? match[0] : null;
+}
+
 async function getLastEmail() {
   const response = await fetch(`${emailHttpUrl}/messages`);
   const emailListBody = await response.json();
   const lastEmailItem = emailListBody.pop();
+  if (!lastEmailItem) {
+    return null;
+  }
+
   const emailTextResponse = await fetch(
     `${emailHttpUrl}/messages/${lastEmailItem.id}.plain`,
   );
@@ -80,10 +102,14 @@ async function getLastEmail() {
 }
 
 const orchestrator = {
+  addFeatures,
   clearDatabase,
+  activateUser,
   createUser,
   createSession,
   deleteAllEmails,
+  extractUUID,
+  findOneByUsername,
   getLastEmail,
   runPendingMigrations,
   waitForAllServices,

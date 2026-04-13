@@ -14,6 +14,7 @@ describe("GET to /ap1/v1/user", () => {
       const newUser = await orchestrator.createUser({
         username: "UserWithValidSession",
       });
+      const activatedUser = await orchestrator.activateUser(newUser);
       const sessionObject = await orchestrator.createSession(newUser.id);
       const response = await fetch(`http://localhost:3000/api/v1/user`, {
         headers: {
@@ -33,9 +34,9 @@ describe("GET to /ap1/v1/user", () => {
         id: responseBody.id,
         username: newUser.username,
         email: newUser.email,
-        password: responseBody.password,
+        features: ["create:session", "read:session", "update:user"],
         created_at: new Date(newUser.created_at).toISOString(),
-        updated_at: new Date(newUser.updated_at).toISOString(),
+        updated_at: new Date(activatedUser.updated_at).toISOString(),
       });
 
       // Session Renew Assertions
@@ -105,6 +106,7 @@ describe("GET to /ap1/v1/user", () => {
       const newUser = await orchestrator.createUser({
         username: "UserWithExpiredSession",
       });
+      await orchestrator.activateUser(newUser);
       const sessionObject = await orchestrator.createSession(newUser.id);
       jest.useRealTimers();
       const response = await fetch(`http://localhost:3000/api/v1/user`, {

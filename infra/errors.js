@@ -38,11 +38,12 @@ export class MethodNotAllowedError extends Error {
 }
 
 export class ServiceError extends Error {
-  constructor({ cause, message }) {
+  constructor({ cause, message, action, context }) {
     super(message || "Indisponible Service at moment.", { cause });
     this.name = "ServiceError";
-    this.action = "Verify if service is disponible";
+    this.action = action || "Verify if service is disponible";
     this.statusCode = 503;
+    this.context = context;
   }
 
   toJSON() {
@@ -51,6 +52,7 @@ export class ServiceError extends Error {
       message: this.message,
       status_code: this.statusCode,
       action: this.action,
+      context: this.context,
     };
   }
 }
@@ -97,6 +99,24 @@ export class UnauthorizedError extends Error {
     this.name = "UnauthorizedError";
     this.action = action || "Login again to continue with this action";
     this.statusCode = 401;
+  }
+
+  toJSON() {
+    return {
+      name: this.name,
+      message: this.message,
+      status_code: this.statusCode,
+      action: this.action,
+    };
+  }
+}
+
+export class ForbiddenError extends Error {
+  constructor({ cause, message, action }) {
+    super(message || "Access not allowed", { cause });
+    this.name = "ForbiddenError";
+    this.action = action || "Verify features before continue";
+    this.statusCode = 403;
   }
 
   toJSON() {

@@ -9,7 +9,7 @@ beforeAll(async () => {
 describe("GET to /ap1/v1/users", () => {
   describe("Anonymous user", () => {
     test("With exact case match", async () => {
-      const newUser = await orchestrator.createUser({
+      await orchestrator.createUser({
         username: "same_case",
       });
       const response = await fetch(
@@ -22,15 +22,14 @@ describe("GET to /ap1/v1/users", () => {
       expect(responseBody).toEqual({
         id: responseBody.id,
         username: "same_case",
-        email: newUser.email,
-        password: responseBody.password,
+        features: ["read:activation_token"],
         created_at: responseBody.created_at,
         updated_at: responseBody.updated_at,
       });
     });
 
     test("With case mismatch", async () => {
-      const newUser = await orchestrator.createUser({
+      await orchestrator.createUser({
         username: "diff_case",
       });
       const response2 = await fetch(
@@ -43,8 +42,7 @@ describe("GET to /ap1/v1/users", () => {
       expect(response2Body).toEqual({
         id: response2Body.id,
         username: "diff_case",
-        email: newUser.email,
-        password: response2Body.password,
+        features: ["read:activation_token"],
         created_at: response2Body.created_at,
         updated_at: response2Body.updated_at,
       });

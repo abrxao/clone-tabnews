@@ -6,6 +6,7 @@ async function create(userInputValues) {
   await validateUniqueUsername(userInputValues.username);
   await validateUniqueEmail(userInputValues.email);
   await hashPasswordInObject(userInputValues);
+  injectDefaultFeaturesInObject(userInputValues);
   const newUser = await runInsertQuery(userInputValues);
 
   return newUser;
@@ -14,9 +15,9 @@ async function create(userInputValues) {
     const results = await database.query({
       text: `
         INSERT INTO
-          users (username, email, password)
+          users (username, email, password, features)
         VALUES 
-          ($1, $2, $3)
+          ($1, $2, $3, $4)
         RETURNING
           *
         ;`,
@@ -24,10 +25,14 @@ async function create(userInputValues) {
         userInputValues.username,
         userInputValues.email,
         userInputValues.password,
+        userInputValues.features,
       ],
     });
 
     return results.rows[0];
+  }
+  function injectDefaultFeaturesInObject(userInputValues) {
+    userInputValues.features = ["read:activation_token"];
   }
 }
 
@@ -72,6 +77,52 @@ async function update(username, userInputValues) {
         userWithNewValues.email,
         userWithNewValues.password,
       ],
+    });
+    return results.rows[0];
+  }
+}
+
+async function addFeatures(userID, features) {
+  const updatedUser = await runUpdateQuery(userID, features);
+  return updatedUser;
+
+  async function runUpdateQuery(userID, features) {
+    const results = await database.query({
+      text: `
+        UPDATE
+          users
+        SET
+          features = array_cat(features, $2),
+          updated_at = timezone('utc', now())
+        WHERE
+          id = $1
+        RETURNING
+          * 
+        ;`,
+      values: [userID, features],
+    });
+    return results.rows[0];
+  }
+}
+
+async function setFeatures(userID, features) {
+  const updatedUser = await runUpdateQuery(userID, features);
+  return updatedUser;
+
+  async function runUpdateQuery(userID, features) {
+    const results = await database.query({
+      text: `
+        UPDATE
+          users
+        SET
+          features = $2,
+          updated_at = timezone('utc', now())
+        WHERE
+          id = $1
+        RETURNING
+          * 
+        ;`,
+      values: [userID, features],
     });
     return results.rows[0];
   }
@@ -207,6 +258,14 @@ async function hashPasswordInObject(userInputValues) {
   const hashPassword = await password.hash(userInputValues.password);
   userInputValues.password = hashPassword;
 }
-const user = { create, update, findOneByID, findOneByUsername, findOneByEmail };
+const user = {
+  create,
+  update,
+  findOneByID,
+  findOneByUsername,
+  findOneByEmail,
+  addFeatures,
+  setFeatures,
+};
 
 export default user;
