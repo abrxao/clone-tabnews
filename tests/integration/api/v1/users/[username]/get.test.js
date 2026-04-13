@@ -1,3 +1,4 @@
+import webserver from "infra/webserver";
 import orchestrator from "tests/orchestrator";
 
 beforeAll(async () => {
@@ -13,7 +14,7 @@ describe("GET to /ap1/v1/users", () => {
         username: "same_case",
       });
       const response = await fetch(
-        `http://localhost:3000/api/v1/users/same_case`,
+        `${webserver.origin}/api/v1/users/same_case`,
       );
       expect(response.status).toBe(200);
 
@@ -33,7 +34,7 @@ describe("GET to /ap1/v1/users", () => {
         username: "diff_case",
       });
       const response2 = await fetch(
-        `http://localhost:3000/api/v1/users/Diff_Case`,
+        `${webserver.origin}/api/v1/users/Diff_Case`,
       );
       expect(response2.status).toBe(200);
 
@@ -50,7 +51,7 @@ describe("GET to /ap1/v1/users", () => {
 
     test("With nonexistent user", async () => {
       const response = await fetch(
-        "http://localhost:3000/api/v1/users/non_existent",
+        `${webserver.origin}/api/v1/users/non_existent`,
       );
       expect(response.status).toBe(404);
 

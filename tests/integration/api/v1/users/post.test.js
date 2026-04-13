@@ -3,6 +3,7 @@ import orchestrator from "tests/orchestrator";
 import user from "models/user";
 import password from "models/password";
 import activation from "models/activation";
+import webserver from "infra/webserver";
 
 beforeAll(async () => {
   await orchestrator.waitForAllServices();
@@ -18,7 +19,7 @@ describe("POST to /ap1/v1/users", () => {
         email: "abrxao@gmail.com",
         password: "notStrongValue",
       };
-      const response = await fetch("http://localhost:3000/api/v1/users", {
+      const response = await fetch(`${webserver.origin}/api/v1/users`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -56,7 +57,7 @@ describe("POST to /ap1/v1/users", () => {
     });
 
     test("With duplicated email", async () => {
-      const response1 = await fetch("http://localhost:3000/api/v1/users", {
+      const response1 = await fetch(`${webserver.origin}/api/v1/users`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -69,7 +70,7 @@ describe("POST to /ap1/v1/users", () => {
       });
       expect(response1.status).toBe(201);
 
-      const response2 = await fetch("http://localhost:3000/api/v1/users", {
+      const response2 = await fetch(`${webserver.origin}/api/v1/users`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -92,7 +93,7 @@ describe("POST to /ap1/v1/users", () => {
     });
 
     test("With duplicated username", async () => {
-      const response1 = await fetch("http://localhost:3000/api/v1/users", {
+      const response1 = await fetch(`${webserver.origin}/api/v1/users`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -105,7 +106,7 @@ describe("POST to /ap1/v1/users", () => {
       });
       expect(response1.status).toBe(201);
 
-      const response2 = await fetch("http://localhost:3000/api/v1/users", {
+      const response2 = await fetch(`${webserver.origin}/api/v1/users`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -133,7 +134,7 @@ describe("POST to /ap1/v1/users", () => {
       await activation.activateUserByUserID(user1.id);
       const user1SessionObj = await orchestrator.createSession(user1.id);
 
-      const response = await fetch("http://localhost:3000/api/v1/users", {
+      const response = await fetch(`${webserver.origin}/api/v1/users`, {
         method: "POST",
         headers: {
           Cookie: `session_id=${user1SessionObj.token}`,

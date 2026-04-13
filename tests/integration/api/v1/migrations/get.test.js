@@ -1,3 +1,4 @@
+import webserver from "infra/webserver";
 import orchestrator from "tests/orchestrator";
 
 beforeAll(async () => {
@@ -9,7 +10,7 @@ beforeAll(async () => {
 describe("GET to /ap1/v1/migrations", () => {
   describe("Anonymous user", () => {
     test("Retrieving pending migrations", async () => {
-      const response = await fetch("http://localhost:3000/api/v1/migrations");
+      const response = await fetch(`${webserver.origin}/api/v1/migrations`);
       expect(response.status).toBe(403);
 
       const responseBody = await response.json();
@@ -27,7 +28,7 @@ describe("GET to /ap1/v1/migrations", () => {
       const defaultUser = await orchestrator.createUser();
       const activatedUser = await orchestrator.activateUser(defaultUser);
       const sessionObj = await orchestrator.createSession(activatedUser.id);
-      const response = await fetch("http://localhost:3000/api/v1/migrations", {
+      const response = await fetch(`${webserver.origin}/api/v1/migrations`, {
         headers: { Cookie: `session_id=${sessionObj.token}` },
       });
       expect(response.status).toBe(403);
@@ -48,7 +49,7 @@ describe("GET to /ap1/v1/migrations", () => {
       const activatedUser = await orchestrator.activateUser(defaultUser);
       await orchestrator.addFeatures(activatedUser.id, ["read:migration"]);
       const sessionObj = await orchestrator.createSession(activatedUser.id);
-      const response = await fetch("http://localhost:3000/api/v1/migrations", {
+      const response = await fetch(`${webserver.origin}/api/v1/migrations`, {
         headers: { Cookie: `session_id=${sessionObj.token}` },
       });
       expect(response.status).toBe(200);
