@@ -50,7 +50,7 @@ describe("Use Case: Registration Flow (all successfull)", () => {
     expect(activationToken.user_id).toBe(createUserResponseBody.id);
     expect(activationToken.used_at).toBe(null);
 
-    expect(lastEmail.sender).toBe("<contact@externbr.com>");
+    expect(lastEmail.sender).toBe("<contact@abrxao.dev.br>");
     expect(lastEmail.recipients[0]).toBe("<registrationflow@gmail.com>");
     expect(lastEmail.subject).toBe("Active your account on the ExternBR");
     expect(lastEmail.text).toContain("RegistrationFlow");

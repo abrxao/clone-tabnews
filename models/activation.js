@@ -9,7 +9,7 @@ const EXPIRATION_IN_MS = 15 * 60 * 1000; // 15 minutes in ms
 
 async function sendEmailToUser(user, activationToken) {
   await email.send({
-    from: "ExternBR <contact@externbr.com>",
+    from: "ExternBR <contact@abrxao.dev.br>",
     to: user.email,
     subject: "Active your account on the ExternBR",
     text: `${user.username}, click on the link below to active your account on the Exchange
